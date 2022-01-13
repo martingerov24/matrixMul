@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCES
 	main.cpp
 	external/matrix.h
+	external/multiplication.cu
 )
 
 add_executable(matrixMultiplication ${SOURCES})
@@ -30,4 +31,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:
                        --generate-line-info
                        --use_fast_math
+                       >)
+
+target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:MSVC>:
                        >)
