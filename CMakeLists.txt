@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCES
 	main.cpp
 	external/matrix.h
+	external/CudaMatrix.h
 	external/multiplication.cu
 )
 

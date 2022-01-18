@@ -1,18 +1,16 @@
 #include <cstdint>
 #include <vector>
 
+
 class Matrix
 {
 public:
-	Matrix(std::vector<int32_t>& matrix, uint8_t x, uint8_t y, int id) noexcept
+	Matrix(std::vector<int32_t>& matrix, uint8_t x, uint8_t y, int id = 0) noexcept
 		:m_matrix(matrix), m_x(x), m_y(y), id(id)
 	{
 		printf("constructor\n");
 	}
-	~Matrix() 
-	{
-		printf("destructor\n");
-	}
+	~Matrix() = default;
 	Matrix(const Matrix && other) noexcept
 		: m_matrix(std::move(other.m_matrix))
 		, m_x(other.m_x)
@@ -37,6 +35,8 @@ public:
 		return *this;
 	}
 
+	int32_t sizeOfMatrix() { return m_x * m_y; }
+
 	Matrix& operator=( Matrix && other) noexcept
 	{
 		printf("Move Ass");
@@ -46,6 +46,16 @@ public:
 		}
 		m_matrix = std::move(other.m_matrix);
 		return *this;
+	}
+
+	bool isCompatible(const uint8_t x, const uint8_t y)
+	{
+		if( m_y != x
+			|| m_x != y)
+		{
+			return 1;
+		}
+		return 0;
 	}
 
 	const Matrix operator*(const Matrix& other) noexcept
