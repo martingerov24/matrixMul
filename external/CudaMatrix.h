@@ -41,14 +41,20 @@ public:
 		dimentionsOfMatrix(uint8_t m_x, uint8_t m_y, uint8_t other_x, uint8_t other_y)
 			:m_x(m_x), m_y(m_y), other_x(other_x), other_y(other_y)
 		{}
-		int32_t m_x : 8;
-		int32_t m_y : 8;
-		int32_t other_x : 8;
-		int32_t other_y : 8;
+		int8_t m_x;
+		int8_t m_y;
+		int8_t other_x;
+		int8_t other_y;
+	};
+
+	union intToDim
+	{
+		dimentionsOfMatrix dim;
+		int32_t integer;
 	};
 
 	__host__
-		void MatrixMultiplication(cudaStream_t& providedStream, dimentionsOfMatrix values);
+		void MatrixMultiplication(cudaStream_t& providedStream, intToDim values);
 	__host__
 		void download(cudaStream_t& providedStream, int32_t x, int32_t y)
 	{
