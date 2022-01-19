@@ -35,7 +35,7 @@ public:
 		return *this;
 	}
 
-	int32_t sizeOfMatrix() { return m_x * m_y; }
+	uint32_t sizeOfMatrix() { return m_x * m_y; }
 
 	Matrix& operator=( Matrix && other) noexcept
 	{

@@ -1,29 +1,46 @@
 #include "../external/CudaMatrix.h"
 
-__device__
-union intToDim
-{
-	struct dimentionsOfMatrix {
-		int32_t m_x : 8;
-		int32_t m_y : 8;
-		int32_t other_x: 8;
-		int32_t other_y : 8;
-	};
-
-	int32_t value;
-};
-
 __global__
-void Kernel(int32_t* matrix1, int32_t * matrix2, int32_t dim)
+void Kernel(int32_t* matrix1, int32_t * matrix2,int32_t* result, const uint32_t dim)
 {
-	
+	const uint8_t other_y = dim & 0xff; dim >> 8;
+	const uint8_t other_x = dim & 0xff; dim >> 8;
+	const uint8_t m_y = dim & 0xff; dim >> 8;
+	const uint8_t m_x = dim & 0xff; dim >> 8;
+
+	if (   m_y != other_x
+		|| m_x != other_y
+		|| m_x != 0 || other_y != 0)
+	{
+		return;
+	}
+
+	int resultIndex = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (resultIndex >= m_x * other_y
+		|| resultIndex < 0)
+	{
+		return;
+	}
+
+	uint8_t A = resultIndex / m_x;
+	uint8_t B = resultIndex - A * m_x;
+
+	int32_t res = 0;
+	for (int i = 0; i < A; i++)
+	{
+		res += matrix1[A+i] * matrix2[B + m_x * i];
+	}
+
+	result[resultIndex] = res;
 }
 
 __host__
-void Cuda::MatrixMultiplication(cudaStream_t& providedStream, intToDim values)
+void Cuda::MatrixMultiplication(cudaStream_t& providedStream, uint32_t values)
 {
-	dim3 sizeOfBlock(((values.dim.m_x + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK), values.dim.m_y);
-	int32_t v = values.integer;
-	Kernel << <sizeOfBlock, THREADS_PER_BLOCK, 0, providedStream >> > (m_matrix1, m_matrix2, v);
+	uint8_t other_y = values & 0xff;
+	uint8_t m_x = values >> 24;
+	int8_t sizeOfBlock(((m_x * other_y + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK));
+	Kernel << <sizeOfBlock, THREADS_PER_BLOCK, 0, providedStream >> > (m_matrix1, m_matrix2, resultM, values);
 	auto status = cudaGetLastError();
 }
