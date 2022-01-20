@@ -1,5 +1,7 @@
 #include "../external/CudaMatrix.h"
 
+
+
 __global__
 void Kernel(int32_t* matrix1, int32_t * matrix2,int32_t* result, uint32_t dim)
 {
@@ -42,6 +44,7 @@ void Cuda::MatrixMultiplication(cudaStream_t& providedStream, uint32_t values)
 	uint8_t other_y = values & 0xff;
 	uint8_t m_x = values >> 24;
 	int8_t sizeOfBlock(((m_x * other_y + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK));
+	NVPROF_SCOPE("kernel");
 	Kernel << <sizeOfBlock, THREADS_PER_BLOCK, 0, providedStream >> > (m_matrix1, m_matrix2, resultM, values);
 	auto status = cudaGetLastError();
 }
