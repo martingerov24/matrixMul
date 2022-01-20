@@ -1,16 +1,17 @@
 #include "../external/CudaMatrix.h"
 
 __global__
-void Kernel(int32_t* matrix1, int32_t * matrix2,int32_t* result, const uint32_t dim)
+void Kernel(int32_t* matrix1, int32_t * matrix2,int32_t* result, uint32_t dim)
 {
-	const uint8_t other_y = dim & 0xff; dim >> 8;
-	const uint8_t other_x = dim & 0xff; dim >> 8;
-	const uint8_t m_y = dim & 0xff; dim >> 8;
-	const uint8_t m_x = dim & 0xff; dim >> 8;
+	const uint8_t other_y = dim & 0xff; dim = dim >> 8;
+	const uint8_t other_x = dim & 0xff; dim = dim >> 8;
+	const uint8_t m_y = dim & 0xff; dim = dim >> 8;
+	const uint8_t m_x = dim & 0xff;
 
 	if (   m_y != other_x
 		|| m_x != other_y
-		|| m_x != 0 || other_y != 0)
+		|| m_x == 0 
+		|| other_y == 0)
 	{
 		return;
 	}
@@ -27,9 +28,9 @@ void Kernel(int32_t* matrix1, int32_t * matrix2,int32_t* result, const uint32_t 
 	uint8_t B = resultIndex - A * m_x;
 
 	int32_t res = 0;
-	for (int i = 0; i < A; i++)
+	for (int i = 0; i < m_x; i++)
 	{
-		res += matrix1[A+i] * matrix2[B + m_x * i];
+		res += matrix1[A * other_y+i] * matrix2[B + m_x * i];
 	}
 
 	result[resultIndex] = res;

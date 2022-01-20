@@ -1,8 +1,22 @@
 #include "external/CudaMatrix.h"
 //#include "external/matrix.h"
 
-void CudaMatrixMultiplication(Matrix && matrix, Matrix &&mat2)
+int main()
 {
+	std::vector<int32_t> vec1(900);
+	for (int i = 0; i < vec1.size(); i++)
+	{
+		vec1[i] = rand();
+	}
+	std::vector<int32_t> vec2(900, 0);
+	for (int i = 0; i < 30; i++)
+	{
+		vec2[i * 30+ i] = 1;
+	}
+	
+	mat::Matrix matrix(std::move(vec1), 30, 30); // this is temporary vector for move ctor
+	mat::Matrix matrix2(std::move(vec2), 30, 30);
+
 	cudaError_t cudaStatus = cudaError_t(0);
 	cudaStream_t stream;
 	cudaDeviceSetCacheConfig(cudaFuncCachePreferShared);
@@ -11,23 +25,16 @@ void CudaMatrixMultiplication(Matrix && matrix, Matrix &&mat2)
 	cudaStatus = cudaStreamCreate(&stream);
 
 	Cuda calc;
-	calc.memoryAllocationForTwoVectors(stream, matrix.sizeOfMatrix(), mat2.sizeOfMatrix(), cudaStatus);
-	uint32_t v = calc.uploadToDevice(stream, std::move(matrix), std::move(mat2), cudaStatus); // this returns the value of the matrixDimentions stored in int
-	
-	calc.MatrixMultiplication(stream, v);
-	Matrix result = calc.download(stream, cudaStatus);
-	calc.sync(stream, cudaStatus);
-	for (size_t i = 0; i < result.sizeOfMatrix() ; i++)
-	{
-		printf("%d ", result.m_matrix[i] );
-	}
-}
+	calc.memoryAllocationForTwoVectors(stream, matrix.sizeOfMatrix(), matrix2.sizeOfMatrix(), cudaStatus);
+	uint32_t v = calc.uploadToDevice(stream, matrix, matrix2, cudaStatus); // this returns the value of the matrixDimentions stored in int
 
-int main()
-{
-	Matrix matrix(std::vector<int32_t> {1, 2, 3, 4, 5, 4, 3, 2, 1}, 3, 3, 10); // this is temporary vector for move ctor
-	Matrix mat2(std::vector<int32_t>   {1, 0, 0, 0, 1, 0, 0, 0, 1}, 3, 3, 20);
-	CudaMatrixMultiplication(std::move(matrix), std::move(mat2));
+	calc.MatrixMultiplication(stream, v);
+	mat::Matrix result = calc.download(stream, cudaStatus);
+	calc.sync(stream, cudaStatus);
 	
+	if (matrix == result)
+	{
+		printf("ok");
+	}
 	return 0;
 }
