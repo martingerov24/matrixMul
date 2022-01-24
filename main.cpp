@@ -13,7 +13,7 @@ int main()
 		vec2[i * 100+ i] = 1;
 	}
 	
-	mat::Matrix matrix(std::move(vec1), 100, 100); // this is temporary vector for move ctor
+	mat::Matrix matrix(std::move(vec1),  100, 100); // this is temporary vector for move ctor
 	mat::Matrix matrix2(std::move(vec2), 100, 100);
 
 	cudaError_t cudaStatus = cudaError_t(0);

@@ -5,6 +5,7 @@
 __global__
 void Kernel(int32_t* matrix1, int32_t * matrix2,int32_t* result, uint32_t dim)
 {
+	
 	const uint8_t other_y = dim & 0xff; dim = dim >> 8;
 	const uint8_t other_x = dim & 0xff; dim = dim >> 8;
 	const uint8_t m_y = dim & 0xff; dim = dim >> 8;
