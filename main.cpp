@@ -10,7 +10,7 @@ int main()
 	std::vector<int32_t> vec2(10000, 0);
 	for (int i = 0; i < 100; i++)
 	{
-		vec2[i * 100+ i] = 1;
+		vec2[i * 100 + i] = 1;
 	}
 	
 	mat::Matrix matrix(std::move(vec1),  100, 100); // this is temporary vector for move ctor
