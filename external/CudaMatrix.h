@@ -1,6 +1,6 @@
 #pragma once
 
-#define THREADS_PER_BLOCK 1024
+#define THREADS_PER_BLOCK 128
 #include "cuda_runtime.h"
 #include "cuda/std/cmath"
 #include "device_launch_parameters.h"
@@ -42,19 +42,14 @@ public:
 	}
 
 	__host__
-		int32_t uploadToDevice(cudaStream_t& providedStream, mat::Matrix& first, mat::Matrix& second, cudaError_t cudaStatus) noexcept
+		void uploadToDevice(cudaStream_t& providedStream, mat::Matrix& first, mat::Matrix& second, cudaError_t cudaStatus) noexcept
 	{
 		if (first.isCompatible(second)) {
 			FreeMemory(providedStream);
 			throw "now compatible matrixes";
 		}
-		intToDim v;
-		v.dim.m_x = first.x();
 		x = first.x();
 		y = second.y();
-		v.dim.m_y = first.y();
-		v.dim.other_x = second.x();
-		v.dim.other_y = second.y();
 
 		NVPROF_SCOPE("memcpy async");
 		cudaStatus = cudaMemcpyAsync(m_matrix1, first.dataPointer(), sizeof(int32_t) * first.sizeOfMatrix(), cudaMemcpyHostToDevice, providedStream);
@@ -62,23 +57,11 @@ public:
 
 		cudaStatus = cudaMemcpyAsync(m_matrix2, second.dataPointer(), sizeof(int32_t) * second.sizeOfMatrix(), cudaMemcpyHostToDevice, providedStream);
 		assert(cudaStatus == cudaSuccess && "not able to trainsfer data, between host and device");
-		return v.integer;
 	}
 
-	union intToDim
-	{
-		struct Dim
-		{
-			int8_t m_x;
-			int8_t m_y;
-			int8_t other_x;
-			int8_t other_y;
-		}dim;
-		uint32_t integer;
-	};
 		
 	__host__
-		void MatrixMultiplication(cudaStream_t& providedStream, uint32_t values);
+		void MatrixMultiplication(cudaStream_t& providedStream, int32_t sharedMem = 0);
 	__host__
 		mat::Matrix download(cudaStream_t& providedStream, cudaError_t cudaStatus)
 	{

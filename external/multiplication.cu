@@ -1,11 +1,10 @@
 #include "../external/CudaMatrix.h"
 
-__global__
-void Kernel(int32_t* matrix1, int32_t * matrix2,int32_t* result, uint32_t dim)
-{
-	const uint8_t other_y = dim & 0xff;
-	const uint8_t m_x = dim >> 24;
 
+
+__global__
+void Kernel(int32_t* matrix1, int32_t * matrix2,int32_t* result, int32_t m_x, int32_t other_y)
+{
 	if ( m_x != other_y
 		|| m_x == 0 
 		|| other_y == 0)
@@ -39,13 +38,47 @@ void Kernel(int32_t* matrix1, int32_t * matrix2,int32_t* result, uint32_t dim)
 	result[resultIndex] = res;
 }
 
-__host__
-void Cuda::MatrixMultiplication(cudaStream_t& providedStream, uint32_t values)
+__global__
+void DivideAndConquer(int32_t* matrix1, int32_t* matrix2, int32_t* result, const int32_t m_x, const int32_t other_y)
 {
-	uint8_t other_y = values & 0xff;
-	uint8_t m_x = values >> 24;
-	int8_t sizeOfBlock(((m_x * other_y + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK));
+	int resultIndex = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (resultIndex >= m_x * other_y
+		|| resultIndex < 0)
+	{
+		return;
+	}
+
+	int32_t wBord; 
+	uint8_t A = resultIndex / m_x;
+	uint8_t B = resultIndex - A * m_x;
+	wBord = A / BORDER_SIZE + B / BORDER_SIZE;
+
+	__shared__ int32_t A_matrixRow[36];
+	__shared__ int32_t B_matrixCol[36];
+	B_matrixCol[resultIndex] = matrix2[resultIndex];
+	__shared__ int32_t Result[36];
+	__syncthreads();
+
+
+	for (int i = 0; i < m_x; i++)
+	{
+		A_matrixRow[resultIndex] = matrix1[resultIndex];
+
+	}
+	//__shared__ int32_t s_matrix2[100 * 100];
+	//s_matrix2[resultIndex] = matrix2[resultIndex];
+
+	result[resultIndex] = res;
+}
+
+
+__host__
+void Cuda::MatrixMultiplication(cudaStream_t& providedStream, int32_t sharedMem)
+{
+
+	int8_t sizeOfBlock(((x * y + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK));
 	NVPROF_SCOPE("kernel");
-	Kernel << <sizeOfBlock, THREADS_PER_BLOCK, 0, providedStream >> > (m_matrix1, m_matrix2, resultM, values);
+	Kernel << <sizeOfBlock, THREADS_PER_BLOCK, 0, providedStream >> > (m_matrix1, m_matrix2, resultM, x, y);
 	auto status = cudaGetLastError();
 }
