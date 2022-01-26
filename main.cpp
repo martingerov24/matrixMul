@@ -2,19 +2,19 @@
 
 int main()
 {
-	std::vector<int32_t> vec1(36);
+	std::vector<int32_t> vec1(4);
 	for (int i = 0; i < vec1.size(); i++)
 	{
 		vec1[i] = rand();
 	}
-	std::vector<int32_t> vec2(36, 0);
-	for (int i = 0; i < 6; i++)
+	std::vector<int32_t> vec2(4, 0);
+	for (int i = 0; i < 2; i++)
 	{
-		vec2[i * 6 + i] = 1;
+		vec2[i * 2 + i] = 1;
 	}
 	
-	mat::Matrix matrix(std::move(vec1),  6, 6); // this is temporary vector for move ctor
-	mat::Matrix matrix2(std::move(vec2), 6, 6);
+	mat::Matrix matrix(std::move(vec1),  2, 2); // this is temporary vector for move ctor
+	mat::Matrix matrix2(std::move(vec2), 2, 2);
 
 	cudaError_t cudaStatus = cudaError_t(0);
 	cudaStream_t stream;
@@ -38,6 +38,11 @@ int main()
 		{
 			printf("ok\n");
 		}
+	}
+	mat::Matrix resultCpu = matrix.StrassensAlgo(matrix2);
+	if (resultCpu == matrix)
+	{
+		printf("ok\n");
 	}
 	return 0;
 }

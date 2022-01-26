@@ -64,6 +64,24 @@ namespace mat
 		{
 			return other_m.m_matrix == m_matrix ? 1 : 0;
 		}
+		const Matrix StrassensAlgo(Matrix& other)
+		{
+			Matrix result(std::vector<int32_t>(m_x*other.m_y, 0),m_x, other.m_y);
+
+			int32_t m[] = { (m_matrix[0] + m_matrix[3]) * (other.m_matrix[0] + other.m_matrix[3]),
+				(m_matrix[1] + m_matrix[3]) * (other.m_matrix[0]),
+				(m_matrix[0]) * (m_matrix[2] - other.m_matrix[3]),
+				(m_matrix[3]) * (m_matrix[1] - other.m_matrix[0]),
+				(m_matrix[0] + m_matrix[2]) * other.m_matrix[3],
+				(m_matrix[1] - m_matrix[1]) * (other.m_matrix[0] + other.m_matrix[2]),
+				(m_matrix[2] - m_matrix[3]) * (other.m_matrix[0] + other.m_matrix[2])
+			};
+			result.m_matrix[0] += m[0] + m[3] - m[4] + m[6];
+			result.m_matrix[1] += m[2] + m[4];
+			result.m_matrix[2] += m[1] + m[3];
+			result.m_matrix[3] += m[0] - m[1] + m[2] + m[5];
+			return result;
+		}
 		const Matrix operator*(const Matrix& other) noexcept
 		{
 			if (m_matrix == other.m_matrix

@@ -1,6 +1,8 @@
 #pragma once
 
 #define THREADS_PER_BLOCK 128
+#define BORDER_SIZE 2
+
 #include "cuda_runtime.h"
 #include "cuda/std/cmath"
 #include "device_launch_parameters.h"
@@ -62,6 +64,8 @@ public:
 		
 	__host__
 		void MatrixMultiplication(cudaStream_t& providedStream, int32_t sharedMem = 0);
+	//__host__ 
+		//void DivideAndConquer(cudaStream_t& providedStream);
 	__host__
 		mat::Matrix download(cudaStream_t& providedStream, cudaError_t cudaStatus)
 	{
