@@ -54,8 +54,8 @@ void DivideAndConquer(int32_t* matrix1, int32_t* matrix2, int32_t* result, const
 	uint8_t B = resultIndex - A * m_x;
 	wBord = A / BORDER_SIZE + B / BORDER_SIZE;
 	
-	__shared__ int32_t A_matrixRow[BORDER_SIZE * BORDER_SIZE];
-	__shared__ int32_t B_matrixCol[BORDER_SIZE * BORDER_SIZE];
+	__shared__ int32_t A_matrixRow[BORDER_SIZE * 6]; // read 2 rows of the matrix
+	__shared__ int32_t B_matrixCol[BORDER_SIZE * 6]; // read the 2 cols of the matrix
 
 	A_matrixRow[resultIndex] = matrix1[resultIndex];
 	__syncwarp();									// this might make a problem

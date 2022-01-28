@@ -39,7 +39,7 @@ int main()
 			printf("ok\n");
 		}
 	}
-	mat::Matrix resultCpu = matrix.StrassensAlgo(matrix2);
+	mat::Matrix resultCpu = matrix * matrix2;
 	if (resultCpu == matrix)
 	{
 		printf("ok\n");
