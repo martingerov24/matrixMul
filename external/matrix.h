@@ -1,6 +1,5 @@
 #include <cstdint>
 #include <vector>
-#include <tuple>
 namespace mat
 {
 class Matrix
@@ -19,6 +18,7 @@ private:
 			{r.m_matrix[y		* r.m_x + x]}, 	{r.m_matrix[y		* r.m_x + x + 1]},
 			{r.m_matrix[(y + 1) * r.m_x + x]},  {r.m_matrix[(y + 1) * r.m_x + x + 1] }
 		};
+
 		//strassen's algorithm
 		const int32_t m[] = {(f[0] + f[3]) * (s[0] + s[3]),
 			(f[1] +  f[3]) * (s[0]),
@@ -28,7 +28,7 @@ private:
 			(f[1] -  f[0]) * (s[0] + s[2]),
 			(f[2] -  f[3]) * (s[1] + s[3])
 		};
-		
+
 		return std::vector<int32_t> {
 			{ m[0] + m[3] - m[4] + m[6]},
 			{ m[1] + m[3] },
@@ -49,7 +49,7 @@ public:
 
 	~Matrix() = default;
 		
-	Matrix(const Matrix&& other) noexcept
+	Matrix(Matrix&& other) noexcept
 		: m_matrix(std::move(other.m_matrix))
 		, m_x(other.m_x)
 		, m_y(other.m_y)
@@ -66,9 +66,12 @@ public:
 		printf("BOOM");
 	}
 
-	Matrix& operator=(Matrix& other)
+	Matrix& operator=(const Matrix& other)
 	{
 		printf("assigment\n");
+		m_matrix = other.m_matrix;
+		m_x = other.m_x;
+		m_y = other.m_y;
 		return *this;
 	}
 
@@ -85,7 +88,7 @@ public:
 		return *this;
 	}
 
-	bool isCompatible(const Matrix & other)
+	bool isCompatible(const Matrix & other) const 
 	{
 		if (m_y != other.m_x
 			|| m_x != other.m_y)
@@ -95,15 +98,15 @@ public:
 		return 0;
 	}
 
-	bool operator==(Matrix& other_m)
+	bool operator==(const Matrix& other_m) const
 	{
 		return other_m.m_matrix == m_matrix ? 1 : 0;
 	}
 
-	const Matrix operator*(Matrix& other)
+	Matrix operator*(const Matrix& other) noexcept
 	{
-		if ((m_x & 0x1) == 1
-			|| (other.m_y & 0x1) == 1)
+		if ((m_x & 0x1) == 0
+			|| (other.m_y & 0x1) == 0 )
 		{
 			return linearMultiplication(other);
 		}
@@ -124,7 +127,7 @@ public:
 		}
 		return result;
 	}
-	const Matrix linearMultiplication(const Matrix& other) noexcept
+	Matrix linearMultiplication(const Matrix& other) noexcept
 	{
 		if (m_matrix == other.m_matrix
 			|| m_y != other.m_x
